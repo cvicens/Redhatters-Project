@@ -1,5 +1,5 @@
 # Introduction
-When I first was approached to create an application for an event involving ann interactive quiz I immediatly got excited because it sounded both cool and challenging.
+When I was first approached to create an application for an event involving an interactive quiz I immediatly got excited because it sounded both cool and challenging.
 
 The idea evolved to a hybrid app were attendees to the event could see the agenda of an event and participate in an interactive quiz.
 
@@ -16,9 +16,14 @@ All in one week... nice.
 
 At least I had a couple of secret weapons, I had access to a Red Hat Mobile Application Platform (RHMAP for short) and a lot of enthusiasm.
 
+**Disclaimers**
+
+* This is just a sample mobile project meant to show how easy is to develop mobile and web apps using socket.io, angular 2+ and Ionic 2 within Red Hat Mobile Application Platform
+* Some minimum knowledge of RHMAP, Ionic and Angular is needed in order to understand the content that follows
+
 # Selecting technology
 
-Regarding the client app I was clear, Ionic 2, cleaner code (thanks to Angular 2/Typescript) and I had been using Ionic 1 for quite some time successfully on RHMAP. What could go wrong?
+Regarding the client app I was clear, Ionic 2, cleaner code (thanks to Angular 2 and Typescript) and I had been using Ionic 1 for quite some time successfully on RHMAP. What could go wrong?
 
 Some sort of interactive protocol... hmmm, that sounded pretty much like websockets. I had run some examples using socket.io and I knew some other redhatters had used socket.io on RHMAP. So, socket.io.
 
@@ -27,12 +32,18 @@ The dashboard... why not Angular 2+ (again cleaner and object oriented) plus Boo
 Security, storage (for events, agenda, quiz, results, users, etc.) and running the APIs, all covered by RHMAP so I just have to care about the business logic of my apps.
 
 # Implementation details
-The final result of thes experience can be summarized as follows.
+The final assets generated as part of this experience can be summarized as follows.
 
 * 1 x Hybrid Client App (Ionic 2) [code](https://github.com/cvicens/Redhatters-Client-App)
 * 1 x Responsive DashBoard to show Quiz results live/historic [code](https://github.com/cvicens/Redhatters-Dashboard-App)
-* 1 x Cloud App (featuring socket.io set up for the interactiveQuiz) [code](https://github.com/cvicens/Redhatters-Cloud-App)
+* 1 x Cloud App (featuring socket.io set up for the interactive Quiz) [code](https://github.com/cvicens/Redhatters-Cloud-App)
 * 1 x Authentication MBaaS Service [code](https://github.com/cvicens/Redhatters-Auth)
+
+Thanks to the project view in RHMAP we can gather together all these 4 components an see/manage them as a whole (as well as indivually). Next picture will hopefully help to understand this.
+
+![Project](pictures/redhatters-project.png)
+
+Now let me explain some relevant details about them.
 
 ## The Client App
 
@@ -128,6 +139,102 @@ $RECYCLE.BIN/
 ...
 ```
 
+### Relevant pieces of code
+As an Ionic 2 app and because of the underlying angular 2+ base you find the code under the ``src`` folder.
+
+I'm going to concentrate on three main elements: pages, components and services.
+
+#### Services
+I have defined three different services under the folder src/services:
+
+* [FHService](https://github.com/cvicens/Redhatters-Client-App/blob/master/src/services/fh.service.ts); exposes all the logic to invoke the RHMAP Javascript SDK
+* [SocketService](https://github.com/cvicens/Redhatters-Client-App/blob/master/src/services/socket.service.ts); concentrates all the logic regarding to the interactive Quiz, start/stopo quiz, receiving new questions, etc. It uses [socket.io](https://socket.io/) as the websockets library
+* [StateService](https://github.com/cvicens/Redhatters-Client-App/blob/master/src/services/state.service.ts); concentrates the state of the App in a [reactive](https://gist.github.com/staltz/868e7e9bc2a7b8c1f754) kind of way
+
+This services are instanciated from the main module src/app/app.module.ts so that as singletons are available and injectable to any page/component througout the application.
+
+It is worth noting that in general all the actions against the Cloud App (rest services and socket.io) are triggered from the StateService so there is a dependency from StateService with FHService and SocketService and also from the SocketService to the FHService. 
+
+Maybe you'll wonder 1st why there is a relationship between SocketService and FHService and 2nd how did I manage this relationships, well the SocketService relies on socket.io.client and this client needs the url where the serve side is running, this url can only be obtained easily from the FHService.
+
+Hopefully the next piece of code should help understanding how, it corresponds to the services/socket.service.js. As you can see the SocketService constructor injects the FHService which has an Observable 'ready' exposed. This will trigger the init() method only once the FHService has been properly init.
+
+
+```
+constructor(private fhService: FHService) {
+
+	this.fhService.ready.subscribe(ready => {
+	  if (ready) {
+	    if(this.init()) {
+	      this._ready.next(true);
+	    }
+	  }
+	});
+    
+}
+```
+Once the FHService has been init the url of the Cloud App is accesible and as you can see below that url is used to init socket.io.client with io(this.url)
+
+```
+init () {
+	this.url = this.fhService.getUrl();
+	if (!this.url) {
+	  return false;
+	}
+	...
+	this.socket = io(this.url);
+	...
+	
+	return true;
+}
+```
+
+#### Tabs
+This a tab based application and has 4 tabs defined at src/pages/tabs:
+
+* **AgendaPage**; shows the agenda of the selected event
+* **QuizPage**; obviously it's where the quiz happens
+* **ContactPage**; only shows the Twitter hashtag designated for the selected event
+* **QuizAdminPage**; (only for administrators) contains buttons to start/stop the quiz and to jump to the next question, it's some kind of quiz remote controller
+
+#### Login page
+This page is at src/pages/login, it's worth noting that the login() method uses FHService to check credentials. See the next snippet:
+
+```
+login () {
+    this.submitAttempt = true;
+ 
+    if(this.loginForm.valid){
+      console.log('Before calling hello endpoint with', this.loginForm.value);
+
+      this.message = 'Before calling...';
+
+      //this.fhService.login(this.loginForm.value.username, this.loginForm.value.password)
+      this.fhService.auth(this.loginForm.value.username, this.loginForm.value.password)
+      .then( (result) => {
+        // Lets update the state of the app...
+        this.stateService.updateUsername(this.loginForm.value.username);
+        this.stateService.updateDepartment(this.loginForm.value.department);
+        this.stateService.updateUserRoles(result.roles);
+        //console.log('result', result);
+        this.message = 'Login OK';
+        this.navCtrl.setRoot(TabsPage);
+      })
+      .catch( (err) => {
+        console.log(err);
+        //this.message = JSON.stringify(err);
+        this.presentToast('User/Password wrong or not found');
+      });
+    } 
+
+  }
+```
+
+As you can see above, after a successful login the root page will change from LoginPage to TabsPage. 
+
+``this.navCtrl.setRoot(TabsPage);``
+
+
 ## The Dashboard App
 
 In this case I started from the scratch using angular cli ``ng``, this time no template was used. I'd recommend you following this [guide](https://angular.io/guide/quickstart) to get started with Angular 2+. There you'll learn how to install angular cli ``ng`` which you'll need later.
@@ -213,6 +320,94 @@ This file basicly sets up and run an Express.js app exposing the files of our an
 We just explained why we need the ``application.js`` file and why we need to expose folder ``www`` as static contents using Express.js, what we haven't explained is why we can't ignore ``www`` in our git repository.
 
 The reason is simple, as of today the highest version of Node.js we can use in RHMAP is 4.4.3 and in order to compile (or [transpile?](https://www.stevefenton.co.uk/2012/11/compiling-vs-transpiling/)) we need 6.10.x, so instead of compiling in RHMAP as a previous step to actually deploying and running the code we have to compile locally and commit/push all, including the ``www`` folder.
+
+## The Cloud App
+
+The Cloud App is the implementation of the API shared by the Client App and the Dashboard. It's based on the default cloud app you get when you create a new Cloud App as in the next picture.
+
+![Cloud App](pictures/redhatters-cloudapp.png)
+
+Obviously the default template is not enough, but it is a good starting point that always comes with the hello world Express.js route. In order to deal with the applications business objects I needed to create some Express.js routes.
+
+* **/events**;  ./lib/events.js to manage events metadata, including the agenda
+* **/answers**; ./lib/answers.js to store and read quiz answers
+* **/quizzes**; ./lib/quizzes.js to store the quiz metadata that can be reused
+
+Additionally I had to add some logic to handle quiz interactions and also to allow the clients request the current status of an ongoing quiz, we'll call this status 'Live Quiz'.
+
+* **/live/quiz**; ./lib/socket-server.js
+
+***Regarding the websockets piece of code at socket-server.js***
+
+There are some snippets worth noting. 
+
+* For instance in application.js after the Express.js ``app.listen()`` invocation we init the our socket server module.
+
+```
+var socketServer = require('./lib/socket-server');
+...
+var server = app.listen(port, host, function() {
+  console.log("App started at: " + new Date() + " on port: " + port); 
+});
+
+// Socket io server setup
+socketServer.init(server);
+```
+
+* Later inside ./lib/socket-server.js you'll find the init() method where the socket.io library is setup based on the server Express.js object.
+
+```
+function init(server) {
+	...
+	io = require('socket.io').listen(server);
+	...
+}
+```
+
+* Again inside init() at socket-server.js we find that every new socket joins to a shared room. This is made to allow sending messages to all the clients at the same time if needed. 
+
+```
+	// join user to room
+    socket.join(SHARED_ROOM);
+```
+
+* There are message handlers for START\_QUIZ\_MESSAGE, STOP\_QUIZ\_MESSAGE, NEXT\_QUESTION\_MESSAGE, sent from the quiz-admin tab at the Client App.
+
+```
+    // Add a new question
+    socket.on(NEXT_QUESTION_MESSAGE, function(data) {
+        ... Here code to set the next question as the current ...
+    });
+
+    // Start quiz
+    socket.on(START_QUIZ_MESSAGE, function(data) {
+        ... Here code to create a new Live Quiz object ...
+    });
+
+    // Stop quiz
+    socket.on(STOP_QUIZ_MESSAGE, function(data) {
+        ... Here code to delete the corresponding Live Quiz object ...
+    });
+```
+
+* The next piece of code (at socket-server.js) is triggered whenever an event is selected in the Client App or a socket is reconnected in the Client App
+
+```
+    // Join quiz
+    socket.on(JOIN_QUIZ_MESSAGE, function(data, ackFn) {
+        console.log('JOIN_QUIZ_MESSAGE', data);
+        var liveQuizId = data.liveQuizId;
+
+        socket.join(liveQuizId, function(err) {
+            if (!err) {
+                ackFn('success');
+            } else {
+                ackFn('error');
+            }
+        });
+
+    });
+```
 
 
 
