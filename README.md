@@ -503,6 +503,22 @@ Once the MBaaS Service is ready to be used you have to define a new Auth Policy 
 
 ## Some sample data to test the whole project
 
+In order to make this project work you need to create some sample data in the built-in database.
+
+Specifically, you should go to the Cloud App (so previously you should have imported this in your enviroment) and create the following collections:
+
+* **events** and create a new document using the advanced editor with the following [data](https://github.com/cvicens/Redhatters-Project/blob/master/samples/event.json)
+* **quizzes** and again create a document with this [data](https://github.com/cvicens/Redhatters-Project/blob/master/samples/quiz.json)
+* **answers** there's no need to create any document here, attendees will insert new data as they anser the quiz
+
+At the end you should get somthing like this.
+
+![Cloud App collections](pictures/redhatters-cloudapp-databrowser.png)
+
+Then go to your deployed Auth MBaaS Service (Redhatters Auth [code](https://github.com/cvicens/Redhatters-Auth)) and create a collection called **local-users** and add users, here you have a couple of examples:
+
+* **admin user**; 
+* **normal user**; 
 
 # Summary/Results/Learnings
 
