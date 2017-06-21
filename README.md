@@ -45,7 +45,7 @@ The final assets generated as part of this experience can be summarized as follo
 
 Thanks to the project view in RHMAP we can gather together all these 4 components an see/manage them as a whole (as well as indivually). Next picture will hopefully help to understand this.
 
-![Project](pictures/redhatters-project.png)
+![Project](https://github.com/cvicens/Redhatters-Project/blob/master/pictures/redhatters-project.png)
 
 Now let me explain some relevant details about them in the following chapters.
 
@@ -517,8 +517,10 @@ At the end you should get somthing like this.
 
 Then go to your deployed Auth MBaaS Service (Redhatters Auth [code](https://github.com/cvicens/Redhatters-Auth)) and create a collection called **local-users** and add users, here you have a couple of examples:
 
-* **admin user**; 
-* **normal user**; 
+* **admin user**; [data](https://github.com/cvicens/Redhatters-Project/blob/master/samples/admin-user.json)
+* **normal user**; [data](https://github.com/cvicens/Redhatters-Project/blob/master/samples/normal-user.json)
+
+**REMEMBER THAT PASSWORD HAVE TO BE HASHED WITH MD5!**
 
 # Summary/Results/Learnings
 
