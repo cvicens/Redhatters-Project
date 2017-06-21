@@ -14,7 +14,11 @@ After the scoping session I had a pretty clear idea, we would need:
 
 All in one week... nice.
 
-At least I had a couple of secret weapons, I had access to a Red Hat Mobile Application Platform (RHMAP for short) and a lot of enthusiasm.
+At least I had a couple of secret weapons, I had access to a Red Hat Mobile Application Platform environment (RHMAP for short) and a lot of enthusiasm.
+
+At the end of this article you'll be able to understand how to integrate RHMAP with socket.io, how to use properly RHMAP Javascript SDK in an angular 2+ application and how to setup custom authentication for your apps.
+
+If you have some experience with RHMAP you'll also be able to get the whole project up and running in no time, but in order to make it easier for all the rest I'll write a second part where I'll explain all the details to import the assets in your own environment.
 
 **Disclaimers**
 
@@ -29,7 +33,7 @@ Some sort of interactive protocol... hmmm, that sounded pretty much like websock
 
 The dashboard... why not Angular 2+ (again cleaner and object oriented) plus Bootstrap 4? Maybe a bit bold here... Bootstrap 4 is still alpha... but I had used it before with no issues. So I took my chances.
 
-Security, storage (for events, agenda, quiz, results, users, etc.) and running the APIs, all covered by RHMAP so I just have to care about the business logic of my apps.
+Security, storage (for events, agenda, quiz, results, users, etc.), push notifications and running the APIs, all covered by RHMAP so I just had to care about the business logic of my apps.
 
 # Implementation details
 The final assets generated as part of this experience can be summarized as follows.
@@ -43,7 +47,7 @@ Thanks to the project view in RHMAP we can gather together all these 4 component
 
 ![Project](pictures/redhatters-project.png)
 
-Now let me explain some relevant details about them.
+Now let me explain some relevant details about them in the following chapters.
 
 ## The Client App
 
@@ -189,6 +193,19 @@ init () {
 }
 ```
 
+Finally FHService will update the 'ready' observable attribute one the SDK init event is received.
+
+This is the relevant piece of code in the contructor of FHService. As you can see bellow we're adding a listener just for once because the INIT_EVENT is emitted just once. The callback function updates the 'ready' observable that SocketServices observes to trigger its own init logic.
+
+```
+  constructor() {
+    $fh.once(INIT_EVENT, (event) => {
+      console.log('Service ready with url:', this.getUrl());
+      this._ready.next(true);
+    });
+  }
+```
+
 #### Tabs
 This a tab based application and has 4 tabs defined at src/pages/tabs:
 
@@ -198,35 +215,24 @@ This a tab based application and has 4 tabs defined at src/pages/tabs:
 * **QuizAdminPage**; (only for administrators) contains buttons to start/stop the quiz and to jump to the next question, it's some kind of quiz remote controller
 
 #### Login page
-This page is at src/pages/login, it's worth noting that the login() method uses FHService to check credentials. See the next snippet:
+This page is at src/pages/login, it's worth noting that the login() method uses FHService to check credentials. See the next snippet based on the [RHMAP Auth API](https://access.redhat.com/documentation/en-us/red_hat_mobile_application_platform_hosted/3/html/client_api/fh-auth):
 
 ```
 login () {
     this.submitAttempt = true;
  
     if(this.loginForm.valid){
-      console.log('Before calling hello endpoint with', this.loginForm.value);
-
-      this.message = 'Before calling...';
-
-      //this.fhService.login(this.loginForm.value.username, this.loginForm.value.password)
+		...
       this.fhService.auth(this.loginForm.value.username, this.loginForm.value.password)
       .then( (result) => {
         // Lets update the state of the app...
-        this.stateService.updateUsername(this.loginForm.value.username);
-        this.stateService.updateDepartment(this.loginForm.value.department);
-        this.stateService.updateUserRoles(result.roles);
-        //console.log('result', result);
-        this.message = 'Login OK';
+        ...
         this.navCtrl.setRoot(TabsPage);
       })
       .catch( (err) => {
-        console.log(err);
-        //this.message = JSON.stringify(err);
         this.presentToast('User/Password wrong or not found');
       });
     } 
-
   }
 ```
 
@@ -234,10 +240,13 @@ As you can see above, after a successful login the root page will change from Lo
 
 ``this.navCtrl.setRoot(TabsPage);``
 
-
 ## The Dashboard App
 
-In this case I started from the scratch using angular cli ``ng``, this time no template was used. I'd recommend you following this [guide](https://angular.io/guide/quickstart) to get started with Angular 2+. There you'll learn how to install angular cli ``ng`` which you'll need later.
+The Dashboard App allows you to look for a specific event in a city on a date. The image below shows the app at work.
+
+![Dashboard at work](pictures/redhatters-dashboard-v1.0.gif)
+
+In this case I started from the scratch using angular cli ``ng``, this time no template was used. I'd recommend you to follow this [guide](https://angular.io/guide/quickstart) to get started with Angular 2+. There you'll learn how to install angular cli ``ng`` which you'll need later.
 
 Again it's worth noting what changes I had to apply to be able to run this web application in RHMAP.
 
@@ -248,7 +257,7 @@ This is the list of changes, details can be found on the next sections:
 3. Modifying ``.angular-cli.json`` file to allow copying RHMAP configuration file to ``www``
 3. Modify ``.gitignore`` to version control ``www``
 
-### Installing RHMAP ``fh-js-sdk``
+### Installing RHMAP fh-js-sdk
 
 Once the app was created with ``ng new <app-name>`` I added our RHMAP SDK ``fh-js-sdk`` by executing ``npm install fh-js-sdk --save``
 
@@ -315,7 +324,7 @@ module.exports = server;
 This file basicly sets up and run an Express.js app exposing the files of our angular app, listening in port ``8111`` if run locally, and at the ports defined by environments variables FH_PORT or OPENSHIFT_NODEJS_PORT when run inside RHMAP. As the compiled code ends up in ``www`` we have to expose that folder as static files.
 
 
-### Modify ``.gitignore`` to version control ``www``
+### Modify .gitignore to version control www
 
 We just explained why we need the ``application.js`` file and why we need to expose folder ``www`` as static contents using Express.js, what we haven't explained is why we can't ignore ``www`` in our git repository.
 
@@ -339,7 +348,13 @@ Additionally I had to add some logic to handle quiz interactions and also to all
 
 ***Regarding the websockets piece of code at socket-server.js***
 
-There are some snippets worth noting. 
+There are some snippets worth noting. But before those, please have a look to the video bellow to have a clearer idea of how the app works.
+
+![App running](pictures/redhatters-quiz-demo_v1.0.gif)
+
+As you can imagine the admin tab controls the quiz for the event selected and all the attendees see the current question at the same time.
+
+Now it's time to have a look to the snippets mentioned before.
 
 * For instance in application.js after the Express.js ``app.listen()`` invocation we init the our socket server module.
 
@@ -367,13 +382,16 @@ function init(server) {
 * Again inside init() at socket-server.js we find that every new socket joins to a shared room. This is made to allow sending messages to all the clients at the same time if needed. 
 
 ```
+	...
 	// join user to room
     socket.join(SHARED_ROOM);
+	...
 ```
 
 * There are message handlers for START\_QUIZ\_MESSAGE, STOP\_QUIZ\_MESSAGE, NEXT\_QUESTION\_MESSAGE, sent from the quiz-admin tab at the Client App.
 
 ```
+	...
     // Add a new question
     socket.on(NEXT_QUESTION_MESSAGE, function(data) {
         ... Here code to set the next question as the current ...
@@ -388,6 +406,7 @@ function init(server) {
     socket.on(STOP_QUIZ_MESSAGE, function(data) {
         ... Here code to delete the corresponding Live Quiz object ...
     });
+    ...
 ```
 
 * The next piece of code (at socket-server.js) is triggered whenever an event is selected in the Client App or a socket is reconnected in the Client App
@@ -409,217 +428,99 @@ function init(server) {
     });
 ```
 
+## The MBaaS Service for authentication
+
+This is the simplest part of all, but before getting into the details of the service itself, let me introduce one of the features of RHMAP, authentication policies, and how they work.
+
+From RHMAP [documentation](https://access.redhat.com/documentation/en-us/red_hat_mobile_application_platform_hosted/3/html/product_features/product-features-administration-and-management#auth-policies):
+> RHMAP supports the following Authentication providers:
+> 
+> * OAuth: Specifically, OAuth2, this allows you to authenticate your users against OAuth providers such as Google.
+> * LDAP: Both Active Directory and Open LDAP servers are supported, typically used for more 'Enterprise' type integrations.
+> * FeedHenry: The RHMAP platform authentication mechanism.
+> * MBAAS: Authenticating users via an mBaaS Service, which means you can use any authentication mechanisms.
+
+In this particular case I wanted to show how easy it is to create a custom 'MBAAS' authentication provider that checks credentials (username/MD5(password)) against a MongoDB collection. So I created a new blank MBaaS Service as in the next picture.
+
+![New MBaaS Service](pictures/redhatters-create-new-mbaas-service.png)
+
+Let me bring to your attention that an MBaaS Services is just a Node.js application shareable across all your projects that we usually refer to simply as a connector.
+
+The code is really simple, just one Express.js route:
+
+* **/auth**; ./lib/auth.js
+
+In the application.js file you'll find this route.
+
+```
+...
+app.use('/auth', require('./lib/auth.js')());
+...
+```
+
+The code is pretty simple, it justs looks for a record matching user and password.
 
 
 ```
-{
-  "name": "ionic-app-base",
-  "author": "Ionic Framework",
-  "homepage": "http://ionicframework.com/",
-  "private": true,
-  "scripts": {
-    "clean": "ionic-app-scripts clean",
-    "build": "ionic-app-scripts build",
-    "ionic:build": "ionic-app-scripts build",
-    "ionic:serve": "ionic-app-scripts serve"
-  },
-  "config": {
-    "ionic_copy": "./scripts/copy.custom.config.js"    
-  },
-  "dependencies": {
-    "@angular/common": "2.4.8",
-    "@angular/compiler": "2.4.8",
-    "@angular/compiler-cli": "2.4.8",
-    "@angular/core": "2.4.8",
-    "@angular/forms": "2.4.8",
-    "@angular/http": "2.4.8",
-    "@angular/platform-browser": "2.4.8",
-    "@angular/platform-browser-dynamic": "2.4.8",
-    "@angular/platform-server": "2.4.8",
-    "@ionic-native/core": "3.1.0",
-    "@ionic-native/splash-screen": "3.1.0",
-    "@ionic-native/status-bar": "3.1.0",
-    "@ionic/storage": "2.0.0",
-    "fh-js-sdk": "^2.18.4",
-    "ionic-angular": "2.2.0",
-    "ionicons": "3.0.0",
-    "rxjs": "5.0.1",
-    "sw-toolbox": "3.4.0",
-    "zone.js": "0.7.2"
-  },
-  "devDependencies": {
-    "@ionic/app-scripts": "1.1.4",
-    "typescript": "2.0.9"
-  }
-}
+	router.post('/', function(req, res) {
+    //Must pass a username & password
+    var username = req.body.username || req.body.userId;
+    var password = req.body.password;
+    if (!username || !password) {
+      return res.status(500).json({'status': 'error','message': 'You need to provide a username and password.'});
+    }
+
+    checkCredentials(username, password)
+    .then(function (result){
+        console.log('username', username, 'authenticated')
+        res.status(result.statusCode).json(result);
+    })
+    .catch(function (err) {
+        console.log('username', username, 'not authenticated', 'err', err)
+        res.status(err.statusCode).json(err);
+    });
+
+  });
 ```
 
+The method checkCrecentials() in its turn uses [RHMAP database API](https://access.redhat.com/documentation/en-us/red_hat_mobile_application_platform_hosted/3/html/cloud_api/fh-db) to look for a record in a collection called 'local-users'.
 
-Links:
+Once the MBaaS Service is ready to be used you have to define a new Auth Policy as in the next pictures.
+
+**Click on 'create'**
+
+![](pictures/redhatters-create-auth-policy1.png)
+
+**Setup your Auth Policy**
+
+* Give your auth policy a name
+* Select MBaaS Service as type
+* Type in your authentication endpoint, which is /auth
+* Choose your default environment
+* Finally you can validate your auth policy live!
+
+![](pictures/redhatters-create-auth-policy2.png)
+
+## Some sample data to test the whole project
+
+
+# Summary/Results/Learnings
+
+**Faster than I expected**
+
+After a week (busy week) I was able to create a complete end-to-end mobile project comprising a mobile app, a dashboard, custom authentication and an interactive quiz game.
+
+The easiest parts where those related to the database objects, RHMAP provides us with an easy to use API. Besides all the development of these database logic was developed locally first making it really easy to debug and test before deploying in RHMAP. Please have a look to [this](https://access.redhat.com/documentation/en-us/red_hat_mobile_application_platform_hosted/3/html/local_development_guide/) document to learn more about local development in RHMAP.
+
+**Socket.io works pretty well although it defaults to http polling when RHMAP is deployed on AWS**
+
+The real challange here was to crate the interactive quiz infrastructure, but I started with some advantage, as I said before other redhatters had already tested this for instance [this](https://github.com/RHMAP-Sample-Mobile-Apps/pointing-ionic2-app) and [this](https://github.com/RHMAP-Sample-Mobile-Apps/pointing-cloud) so thanks to Corinne Krych!
+
+After some preliminar tests I learned that socket.io client is smart and first tries wss:// and if it fails it defaults to HTTP polling but with very responsive feeling. The reason for this seems to be related to FW/LB configuration but I didn't have a chance dig into it.
 
 
 
-## Project complete!
-
-## Results
 
 
 
 
-
-```
-{
-    "id": "0015",
-    "title": "Country Meeting FY17Q2 Kick-Off",
-    "quizId": "0002",
-    "address": "Paseo de la Castellana 259C",
-    "city": "MADRID",
-    "province": "MADRID",
-    "country": "SPAIN",
-    "date": "2017-06-19",
-    "startTime": "10:00",
-    "endTime": "21:00",
-    "hashtag": "#madrid17Q1",
-    "agenda": [
-        {
-            "day": 1,
-            "segments": [
-                {
-                    "slot": "9:30am",
-                    "sessions": [
-                        {
-                            "day": 1,
-                            "title": "Recogida en las oficinas de Red Hat",
-                            "slug": "day-1-pick-up",
-                            "location": "Red Hat Office, MAdrid",
-                            "startTime": "2017-06-09T07:30:00.000Z",
-                            "endTime": "2017-06-09T08:00:00.000",
-                            "hasDetails": false,
-                            "onMySchedule": false,
-                            "allDay": false,
-                            "objectId": "xeBniOY5Qb",
-                            "sortTime": "1497000600",
-                            "displayTime": "9:30am"
-                        }
-                    ]
-                },
-                {
-                    "slot": "10:00am",
-                    "sessions": [
-                        {
-                            "day": 1,
-                            "title": "Café de bienvenida",
-                            "slug": "day-1-breakfast",
-                            "location": "Hall, Las Rozas",
-                            "startTime": "2017-06-09T08:00:00.000Z",
-                            "endTime": "2017-06-09T08:30:00.000Z",
-                            "hasDetails": false,
-                            "onMySchedule": false,
-                            "allDay": false,
-                            "objectId": "TCICVoDUMX",
-                            "sortTime": "1497002400",
-                            "displayTime": "10:00am"
-                        }
-                    ]
-                },
-                {
-                    "slot": "10:30am",
-                    "sessions": [
-                        {
-                            "day": 1,
-                            "title": "Country Meeting - Sala de conferencias",
-                            "slug": "day-1-contry-meeting",
-                            "location": "Sala conferencias, Las Rozas",
-                            "startTime": "2017-06-09T08:30:00.000Z",
-                            "endTime": "2017-06-09T10:30:00.000Z",
-                            "hasDetails": false,
-                            "onMySchedule": false,
-                            "allDay": false,
-                            "objectId": "TCICVoDUMX",
-                            "sortTime": "1497004200",
-                            "displayTime": "10:30am"
-                        }
-                    ]
-                },
-                {
-                    "slot": "12:30am",
-                    "sessions": [
-                        {
-                            "day": 1,
-                            "title": "Preparación Técnica - Actividad en equipo",
-                            "slug": "day-1-team-building-prep",
-                            "location": "Sala conferencias, Las Rozas",
-                            "startTime": "2017-06-09T10:30:00.000Z",
-                            "endTime": "2017-06-09T11:00:00.000Z",
-                            "hasDetails": false,
-                            "onMySchedule": false,
-                            "allDay": false,
-                            "objectId": "TCICVoDUMX",
-                            "sortTime": "1497011400",
-                            "displayTime": "12:30am"
-                        }
-                    ]
-                },
-                {
-                    "slot": "01:00pm",
-                    "sessions": [
-                        {
-                            "day": 1,
-                            "title": "Open Bar & Actividad de equipo",
-                            "slug": "day-1-team-building-activity",
-                            "location": "Túnel del viento",
-                            "startTime": "2017-06-09T11:00:00.000Z",
-                            "endTime": "2017-06-09T13:00:00.000Z",
-                            "hasDetails": false,
-                            "onMySchedule": false,
-                            "allDay": false,
-                            "objectId": "TCICVoDUMX",
-                            "sortTime": "1497013200",
-                            "displayTime": "01:00pm"
-                        }
-                    ]
-                },
-                {
-                    "slot": "03:00pm",
-                    "sessions": [
-                        {
-                            "day": 1,
-                            "title": "Almuerzo - Cocktail",
-                            "slug": "day-1-lunch",
-                            "location": "Bar",
-                            "startTime": "2017-06-09T13:00:00.000Z",
-                            "endTime": "2017-06-09T15:00:00.000Z",
-                            "hasDetails": false,
-                            "onMySchedule": false,
-                            "allDay": false,
-                            "objectId": "TCICVoDUMX",
-                            "sortTime": "1497020400",
-                            "displayTime": "03:00pm"
-                        }
-                    ]
-                },
-                {
-                    "slot": "05:00pm",
-                    "sessions": [
-                        {
-                            "day": 1,
-                            "title": "Regreso a las oficinas de Red Hat",
-                            "slug": "day-1-return",
-                            "location": "Bus Station",
-                            "startTime": "2017-06-09T15:00:00.000Z",
-                            "endTime": "2017-06-09T15:30:00.000Z",
-                            "hasDetails": false,
-                            "onMySchedule": false,
-                            "allDay": false,
-                            "objectId": "TCICVoDUMX",
-                            "sortTime": "1497027600",
-                            "displayTime": "05:00pm"
-                        }
-                    ]
-                }
-            ]
-        }
-    ],
-    "_id": "5947a28cd168f54b3406989a"
-}
-```

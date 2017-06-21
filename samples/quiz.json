@@ -1,0 +1,60 @@
+{
+    "id": "0001",
+    "questions": [
+        {
+            "question": "What's the capital of Spain?",
+            "choices": [
+                "Paris",
+                "Barcelona",
+                "Madrid"
+            ],
+            "answers": [
+                2
+            ]
+        },
+        {
+            "question": "What's the capital of France?",
+            "choices": [
+                "Paris",
+                "Barcelona",
+                "Madrid"
+            ],
+            "answers": [
+                0
+            ]
+        },
+        {
+            "question": "What's the capital of Italy?",
+            "choices": [
+                "Rome",
+                "Barcelona",
+                "Madrid"
+            ],
+            "answers": [
+                0
+            ]
+        },
+        {
+            "question": "What's the capital of Germany?",
+            "choices": [
+                "Rome",
+                "Berlin",
+                "Madrid"
+            ],
+            "answers": [
+                1
+            ]
+        },
+        {
+            "question": "What's the capital of Russia?",
+            "choices": [
+                "Rome",
+                "Berlin",
+                "Moscow"
+            ],
+            "answers": [
+                2
+            ]
+        }
+    ]
+}

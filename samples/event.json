@@ -1,0 +1,153 @@
+{
+    "id": "0001",
+    "title": "Meeting in Dublin",
+    "quizId": "0001",
+    "address": "Ballbridge",
+    "city": "DUBLIN",
+    "province": "DUBLIN",
+    "country": "IRELAND",
+    "date": "2017-06-21",
+    "startTime": "10:00",
+    "endTime": "21:00",
+    "hashtag": "#dublin17Q1",
+    "agenda": [
+        {
+            "day": 1,
+            "segments": [
+                {
+                    "slot": "9:30am",
+                    "sessions": [
+                        {
+                            "day": 1,
+                            "title": "Welcome Breakfast",
+                            "slug": "day-1-breakfast",
+                            "location": "Red Hat Office, Dublin",
+                            "startTime": "2017-06-09T07:30:00.000Z",
+                            "endTime": "2017-06-09T08:00:00.000",
+                            "hasDetails": false,
+                            "onMySchedule": false,
+                            "allDay": false,
+                            "objectId": "xeBniOY5Qb",
+                            "sortTime": "1497000600",
+                            "displayTime": "9:30am"
+                        }
+                    ]
+                },
+                {
+                    "slot": "10:00am",
+                    "sessions": [
+                        {
+                            "day": 1,
+                            "title": "Registration",
+                            "slug": "day-1-registration",
+                            "location": "Hall, Las Rozas",
+                            "startTime": "2017-06-09T08:00:00.000Z",
+                            "endTime": "2017-06-09T08:30:00.000Z",
+                            "hasDetails": false,
+                            "onMySchedule": false,
+                            "allDay": false,
+                            "objectId": "TCICVoDUMX",
+                            "sortTime": "1497002400",
+                            "displayTime": "10:00am"
+                        }
+                    ]
+                },
+                {
+                    "slot": "10:30am",
+                    "sessions": [
+                        {
+                            "day": 1,
+                            "title": "Main conference",
+                            "slug": "day-1-main-conference",
+                            "location": "SOROLLA Meeting Room",
+                            "startTime": "2017-06-09T08:30:00.000Z",
+                            "endTime": "2017-06-09T10:30:00.000Z",
+                            "hasDetails": false,
+                            "onMySchedule": false,
+                            "allDay": false,
+                            "objectId": "TCICVoDUMX",
+                            "sortTime": "1497004200",
+                            "displayTime": "10:30am"
+                        }
+                    ]
+                },
+                {
+                    "slot": "12:30am",
+                    "sessions": [
+                        {
+                            "day": 1,
+                            "title": "Team building activity briefing",
+                            "slug": "day-1-team-building-prep",
+                            "location": "SOROLLA Meeting Room",
+                            "startTime": "2017-06-09T10:30:00.000Z",
+                            "endTime": "2017-06-09T11:00:00.000Z",
+                            "hasDetails": false,
+                            "onMySchedule": false,
+                            "allDay": false,
+                            "objectId": "TCICVoDUMX",
+                            "sortTime": "1497011400",
+                            "displayTime": "12:30am"
+                        }
+                    ]
+                },
+                {
+                    "slot": "01:00pm",
+                    "sessions": [
+                        {
+                            "day": 1,
+                            "title": "Team Building activity",
+                            "slug": "day-1-team-building-activity",
+                            "location": "Skydive Simulator",
+                            "startTime": "2017-06-09T11:00:00.000Z",
+                            "endTime": "2017-06-09T13:00:00.000Z",
+                            "hasDetails": false,
+                            "onMySchedule": false,
+                            "allDay": false,
+                            "objectId": "TCICVoDUMX",
+                            "sortTime": "1497013200",
+                            "displayTime": "01:00pm"
+                        }
+                    ]
+                },
+                {
+                    "slot": "03:00pm",
+                    "sessions": [
+                        {
+                            "day": 1,
+                            "title": "Lunch - Cocktail",
+                            "slug": "day-1-lunch",
+                            "location": "Bar",
+                            "startTime": "2017-06-09T13:00:00.000Z",
+                            "endTime": "2017-06-09T15:00:00.000Z",
+                            "hasDetails": false,
+                            "onMySchedule": false,
+                            "allDay": false,
+                            "objectId": "TCICVoDUMX",
+                            "sortTime": "1497020400",
+                            "displayTime": "03:00pm"
+                        }
+                    ]
+                },
+                {
+                    "slot": "05:00pm",
+                    "sessions": [
+                        {
+                            "day": 1,
+                            "title": "Closure",
+                            "slug": "day-1-closure",
+                            "location": "SOROLLA Meeting Room",
+                            "startTime": "2017-06-09T15:00:00.000Z",
+                            "endTime": "2017-06-09T15:30:00.000Z",
+                            "hasDetails": false,
+                            "onMySchedule": false,
+                            "allDay": false,
+                            "objectId": "TCICVoDUMX",
+                            "sortTime": "1497027600",
+                            "displayTime": "05:00pm"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
