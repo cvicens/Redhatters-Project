@@ -45,7 +45,7 @@ The final assets generated as part of this experience can be summarized as follo
 
 Thanks to the project view in RHMAP we can gather together all these 4 components an see/manage them as a whole (as well as indivually). Next picture will hopefully help to understand this.
 
-![Project](https://github.com/cvicens/Redhatters-Project/blob/master/pictures/redhatters-project.png)
+![Project](https://github.com/cvicens/Redhatters-Project/blob/master/https://github.com/cvicens/Redhatters-Project/blob/master/pictures/redhatters-project.png)
 
 Now let me explain some relevant details about them in the following chapters.
 
@@ -244,7 +244,7 @@ As you can see above, after a successful login the root page will change from Lo
 
 The Dashboard App allows you to look for a specific event in a city on a date. The image below shows the app at work.
 
-![Dashboard at work](pictures/redhatters-dashboard-v1.0.gif)
+![Dashboard at work](https://github.com/cvicens/Redhatters-Project/blob/master/pictures/redhatters-dashboard-v1.0.gif)
 
 In this case I started from the scratch using angular cli ``ng``, this time no template was used. I'd recommend you to follow this [guide](https://angular.io/guide/quickstart) to get started with Angular 2+. There you'll learn how to install angular cli ``ng`` which you'll need later.
 
@@ -334,7 +334,7 @@ The reason is simple, as of today the highest version of Node.js we can use in R
 
 The Cloud App is the implementation of the API shared by the Client App and the Dashboard. It's based on the default cloud app you get when you create a new Cloud App as in the next picture.
 
-![Cloud App](pictures/redhatters-cloudapp.png)
+![Cloud App](https://github.com/cvicens/Redhatters-Project/blob/master/pictures/redhatters-cloudapp.png)
 
 Obviously the default template is not enough, but it is a good starting point that always comes with the hello world Express.js route. In order to deal with the applications business objects I needed to create some Express.js routes.
 
@@ -350,7 +350,7 @@ Additionally I had to add some logic to handle quiz interactions and also to all
 
 There are some snippets worth noting. But before those, please have a look to the video bellow to have a clearer idea of how the app works.
 
-![App running](pictures/redhatters-quiz-demo_v1.0.gif)
+![App running](https://github.com/cvicens/Redhatters-Project/blob/master/pictures/redhatters-quiz-demo_v1.0.gif)
 
 As you can imagine the admin tab controls the quiz for the event selected and all the attendees see the current question at the same time.
 
@@ -442,7 +442,7 @@ From RHMAP [documentation](https://access.redhat.com/documentation/en-us/red_hat
 
 In this particular case I wanted to show how easy it is to create a custom 'MBAAS' authentication provider that checks credentials (username/MD5(password)) against a MongoDB collection. So I created a new blank MBaaS Service as in the next picture.
 
-![New MBaaS Service](pictures/redhatters-create-new-mbaas-service.png)
+![New MBaaS Service](https://github.com/cvicens/Redhatters-Project/blob/master/pictures/redhatters-create-new-mbaas-service.png)
 
 Let me bring to your attention that an MBaaS Services is just a Node.js application shareable across all your projects that we usually refer to simply as a connector.
 
@@ -489,7 +489,7 @@ Once the MBaaS Service is ready to be used you have to define a new Auth Policy 
 
 **Click on 'create'**
 
-![](pictures/redhatters-create-auth-policy1.png)
+![](https://github.com/cvicens/Redhatters-Project/blob/master/pictures/redhatters-create-auth-policy1.png)
 
 **Setup your Auth Policy**
 
@@ -499,7 +499,7 @@ Once the MBaaS Service is ready to be used you have to define a new Auth Policy 
 * Choose your default environment
 * Finally you can validate your auth policy live!
 
-![](pictures/redhatters-create-auth-policy2.png)
+![](https://github.com/cvicens/Redhatters-Project/blob/master/pictures/redhatters-create-auth-policy2.png)
 
 ## Some sample data to test the whole project
 
@@ -513,7 +513,7 @@ Specifically, you should go to the Cloud App (so previously you should have impo
 
 At the end you should get somthing like this.
 
-![Cloud App collections](pictures/redhatters-cloudapp-databrowser.png)
+![Cloud App collections](https://github.com/cvicens/Redhatters-Project/blob/master/pictures/redhatters-cloudapp-databrowser.png)
 
 Then go to your deployed Auth MBaaS Service (Redhatters Auth [code](https://github.com/cvicens/Redhatters-Auth)) and create a collection called **local-users** and add users, here you have a couple of examples:
 
