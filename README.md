@@ -565,7 +565,7 @@ The easiest parts where those related to the database objects, RHMAP provides us
 
 **Socket.io works pretty well although it defaults to http polling when RHMAP is deployed on AWS**
 
-The real challenge here was to crate the interactive quiz infrastructure, but I started with some advantage, as I said before other redhatters had already tested this for instance [this](https://github.com/RHMAP-Sample-Mobile-Apps/pointing-ionic2-app) and [this](https://github.com/RHMAP-Sample-Mobile-Apps/pointing-cloud) so thanks to Corinne Krych!
+The real challenge here was to create the interactive quiz infrastructure, but I started with some advantage, as I said before other redhatters had already tested this for instance [this](https://github.com/RHMAP-Sample-Mobile-Apps/pointing-ionic2-app) and [this](https://github.com/RHMAP-Sample-Mobile-Apps/pointing-cloud) so thanks to Corinne Krych!
 
 After some preliminar tests I learned that socket.io client is smart and first tries wss:// and if it fails it defaults to HTTP polling but with very responsive feeling. The reason for this seems to be related to FW/LB configuration but I didn't have a chance dig into it.
 
