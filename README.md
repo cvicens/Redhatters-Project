@@ -45,7 +45,7 @@ The final assets generated as part of this experience can be summarized as follo
 
 Thanks to the project view in RHMAP we can gather together all these 4 components an see/manage them as a whole (as well as indivually). Next picture will hopefully help to understand this.
 
-![Project](https://github.com/cvicens/Redhatters-Project/blob/master/https://github.com/cvicens/Redhatters-Project/blob/master/pictures/redhatters-project.png)
+![Project](https://github.com/cvicens/Redhatters-Project/blob/master/pictures/redhatters-project.png)
 
 Now let me explain some relevant details about them in the following chapters.
 
